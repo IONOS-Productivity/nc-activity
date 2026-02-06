@@ -15,9 +15,9 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IConfig;
 use OCP\IL10N;
-use OCP\Settings\ISettings;
+use OCP\Settings\IDelegatedSettings;
 
-class Admin implements ISettings {
+class Admin implements IDelegatedSettings {
 	private IConfig $config;
 	private IL10N $l10n;
 	private IManager $manager;
@@ -113,5 +113,13 @@ class Admin implements ISettings {
 
 	public function getPriority(): int {
 		return 55;
+	}
+
+	public function getName(): string {
+		return $this->l10n->t('Activity');
+	}
+
+	public function getAuthorizedAppConfig(): array {
+		return [];
 	}
 }
