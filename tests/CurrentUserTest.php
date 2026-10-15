@@ -57,6 +57,8 @@ class CurrentUserTest extends TestCase {
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->shareManager = $this->createMock(IManager::class);
 		$this->l10nFactory = $this->createMock(IFactory::class);
+
+		$this->request->method('getScriptName')->willReturn('/public.php');
 	}
 
 	protected function getInstance(array $methods = []): CurrentUser|MockObject {
@@ -82,27 +84,24 @@ class CurrentUserTest extends TestCase {
 
 	public static function dataGetUserIdentifier(): array {
 		return [
-			[null, null, null, ''],
-			[null, 'uid', -1, 'uid'],
-			[null, null, 'token', 'token'],
-			['cached', -1, -1, 'cached'],
+			[null, null, ''],
+			['uid', '-1', 'uid'],
+			[null, 'token', 'token'],
 		];
 	}
 
 	#[DataProvider('dataGetUserIdentifier')]
-	public function testGetUserIdentifier(?string $cachedIdentifier, string|int|null $uidResult, string|int|null $tokenResult, string $expected): void {
+	public function testGetUserIdentifier(string|int|null $uidResult, ?string $tokenResult, string $expected): void {
 		$instance = $this->getInstance([
 			'getUID',
 			'getCloudIDFromToken',
 		]);
 
-		self::invokePrivate($instance, 'identifier', [$cachedIdentifier]);
-
 		$instance->expects($uidResult !== -1 ? $this->once() : $this->never())
 			->method('getUID')
 			->willReturn($uidResult);
 
-		$instance->expects($tokenResult !== -1 ? $this->once() : $this->never())
+		$instance->expects($tokenResult !== '-1' ? $this->once() : $this->never())
 			->method('getCloudIDFromToken')
 			->willReturn($tokenResult);
 
